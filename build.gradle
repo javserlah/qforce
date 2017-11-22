@@ -1,0 +1,41 @@
+buildscript {
+	ext {
+		springBootVersion = '1.5.8.RELEASE'
+	}
+	repositories {
+		mavenCentral()
+	}
+	dependencies {
+		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+	}
+}
+
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'org.springframework.boot'
+
+group = 'nl.qnh.qforce'
+version = '1.0'
+sourceCompatibility = 1.8
+
+repositories {
+	mavenCentral()
+}
+
+
+dependencies {
+	compile('org.springframework.boot:spring-boot-starter-web')
+    // For integrating h2 DataBase
+	runtime('com.h2database:h2')
+    //spring data jpa
+    compile("org.springframework.boot:spring-boot-starter-data-jpa")
+    //H2 DataBase integration
+    compile("com.h2database:h2")
+	testCompile('org.springframework.boot:spring-boot-starter-test')
+	// For automatic generation of data in the arrange phase in the tests
+	testCompile("com.flextrade.jfixture:jfixture:2.5.0")
+    // For making more fluent assertions in the assert phase in the tests
+    testCompile("org.assertj:assertj-core:1.7.0")
+    //For mocking external api dependencies
+    testCompile('com.github.tomakehurst:wiremock:2.1.12')
+}
