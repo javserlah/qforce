@@ -1,4 +1,4 @@
-#Application design
+# Application design
 
 The application has been developed in SpringBoot, using gradle as the building tool.
 
@@ -24,7 +24,7 @@ The project is divided in different packages. Following is a description of the 
    - Repository: Its main goal is to have classes for dealing with DataBase operations.
 
 
-#Testing design
+# Testing design
 
 The tests have been divided in the following categories:
 
@@ -45,7 +45,7 @@ In order to make the 3 testing phases (Arrange, Act, Assert) more readable, the 
 
 
 
-#How to build the application
+# How to build the application
 
 In order to build the application we should make use of gradlew so that everybody can share the same gradle version
 and it can be downloaded automatically if it does not exist in the local machine.
@@ -62,7 +62,7 @@ In order to see the javadocs documentation, run the following command inside the
 The documentation generated in the step before can be found at: build/docs
 
 
-#How to run the application
+# How to run the application
 
 After building the application, you can start it by running the following command inside the project directory: java -jar build/libs/qforce-1.0.jar
 
