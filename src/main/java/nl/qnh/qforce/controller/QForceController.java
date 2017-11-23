@@ -28,10 +28,10 @@ public class QForceController {
      * @return a list of persons
      */
     @RequestMapping(value = "/persons", method = RequestMethod.GET)
-    public List<Person> searchPersonsByName(@RequestParam(value = "q")String characterName) {
+    public ResponseEntity<List<Person>> searchPersonsByName(@RequestParam(value = "q")String characterName) {
        List<Person> personList =  personService.search(characterName);
 
-       return personList;
+       return ResponseEntity.ok(personList);
     }
 
     /**
@@ -42,6 +42,6 @@ public class QForceController {
     @RequestMapping(value = "/persons/{id}", method = RequestMethod.GET)
     public ResponseEntity<Person> searchPersonById(@PathVariable("id") long id) {
           Optional<Person> person = personService.get(id);
-          return person.isPresent()?ResponseEntity.ok().body(person.get()):new ResponseEntity<>(HttpStatus.NOT_FOUND);
+          return person.isPresent()?ResponseEntity.ok(person.get()):new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 }

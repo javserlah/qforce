@@ -1,18 +1,21 @@
 package nl.qnh.qforce.domain;
 
+import java.util.List;
+import java.util.Optional;
+
 /**
  * Created by Javi on 21/11/2017.
  * Model for retrieving the original structure from the third party
  */
 public class Paging  {
 
-    int count;
+    private int count;
 
-    String next;
+    private String next;
 
-    String previous;
+    private String previous;
 
-    PersonModel[] results;
+    private List<PersonModel> results;
 
     public int getCount() {
         return count;
@@ -38,11 +41,11 @@ public class Paging  {
         this.previous = previous;
     }
 
-    public PersonModel[] getResults() {
+    public List<PersonModel> getResults() {
         return results;
     }
 
-    public void setResults(PersonModel[] results) {
+    public void setResults(List<PersonModel> results) {
         this.results = results;
     }
 }

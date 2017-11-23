@@ -1,62 +1,71 @@
 package nl.qnh.qforce.domain;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import nl.qnh.qforce.facade.SwApiFacade;
+import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * Created by Javi on 21/11/2017.
  * Implements the person interface for retrieving person details
  */
+@JsonPropertyOrder({ "id", "name","birthYear", "gender","height","weight","films","movies"})
 public class PersonModel implements Person {
-    long id;
+    private long id;
 
-    String name;
+    private String name;
 
-    /**
-     * It maps the third party json field syntaxis into our own syntaxis
-     */
-    @JsonProperty("birth_year")
-    String birthYear;
+    private String birthYear;
 
-    Gender gender;
+    private Gender gender;
 
-    Integer height;
+    private Integer height;
 
-    Integer weight;
+    private Integer weight;
 
-    List<Movie> movies;
+    private String[] films;
+
+    private List<Movie> movies;
 
     public PersonModel() {
     }
 
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public void setName(String name) {
+    @JsonCreator
+    public PersonModel(@JsonProperty("url") String url, @JsonProperty("name") String name, @JsonProperty("birth_year") String birthYear, @JsonProperty("gender") String gender, @JsonProperty("height") Integer height, @JsonProperty("weight") Integer weight, @JsonProperty("films") String[] films) {
+        this.id = extractIdFromUrl(url);
         this.name = name;
-    }
-
-    public void setBirthYear(String birthYear) {
         this.birthYear = birthYear;
-    }
-
-    public void setGender(Gender gender) {
-        this.gender = gender;
-    }
-
-    public void setHeight(Integer height) {
+        this.gender = castGenderFrom(gender);
         this.height = height;
-    }
-
-    public void setWeight(Integer weight) {
         this.weight = weight;
+        this.films = films;
     }
 
-    public void setMovies(List<Movie> movies) {
-        this.movies = movies;
+    private Gender castGenderFrom(String gender) {
+        switch (gender.toUpperCase())
+        {
+            case "MALE":
+                return Gender.MALE;
+            case "FEMALE":
+                return Gender.FEMALE;
+            case "N/A":
+                return Gender.NOT_APPLICABLE;
+            default:
+                return Gender.UNKNOWN;
+
+        }
+    }
+
+    private int extractIdFromUrl(@JsonProperty("url") String url) {
+        return Integer.parseInt(url.replaceAll("\\D+", ""));
     }
 
     @Override
@@ -69,6 +78,7 @@ public class PersonModel implements Person {
         return this.name;
     }
 
+    @JsonProperty("birth_year")
     @Override
     public String getBirthYear() {
         return this.birthYear;
@@ -92,5 +102,14 @@ public class PersonModel implements Person {
     @Override
     public List<Movie> getMovies() {
         return this.movies;
+    }
+
+    @JsonIgnore
+    public String[] getFilms() {
+        return films;
+    }
+
+    public void setMovies(List<Movie> movies) {
+        this.movies = movies;
     }
 }

@@ -11,6 +11,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class QlnhApplication {
     public static void main(String[] args) {
+
         SpringApplication.run(QlnhApplication.class, args);
     }
 }

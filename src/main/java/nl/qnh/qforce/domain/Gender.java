@@ -25,27 +25,5 @@ import com.fasterxml.jackson.annotation.JsonValue;
  * @author QNH
  */
 public enum Gender {
-    MALE("male"), FEMALE("female"), UNKNOWN("unknown"), NOT_APPLICABLE("n/a");
-
-    private String value;
-    private Gender(String value) { this.value = value; }
-
-    @JsonValue
-    public String getValue() { return this.value; }
-
-    /**
-     *
-     * @param val the json value that we receive
-     * @return our internal enumeration value that is mapped to the json value
-     */
-    @JsonCreator
-    public static Gender create(String val) {
-        Gender[] genderValues = Gender.values();
-        for (Gender gender : genderValues) {
-            if (gender.getValue().equals(val)) {
-                return gender;
-            }
-        }
-        return null;
-    }
+    MALE, FEMALE, UNKNOWN, NOT_APPLICABLE
 }

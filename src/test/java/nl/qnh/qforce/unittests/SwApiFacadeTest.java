@@ -8,6 +8,7 @@ import nl.qnh.qforce.controller.QForceController;
 import nl.qnh.qforce.domain.Movie;
 import nl.qnh.qforce.domain.MovieModel;
 import nl.qnh.qforce.domain.Person;
+import nl.qnh.qforce.domain.PersonModel;
 import nl.qnh.qforce.facade.SwApiFacade;
 import org.junit.Before;
 import org.junit.Rule;
@@ -36,7 +37,7 @@ public class SwApiFacadeTest {
     private QForceProperties qForceProperties;
 
     @Rule
-    public WireMockRule swapApiMock = new WireMockRule(wireMockConfig().port(8089));
+    public WireMockRule swapApiMock = new WireMockRule(wireMockConfig().port(8090));
 
     private JFixture jFixture = new JFixture();
 
@@ -49,7 +50,7 @@ public class SwApiFacadeTest {
     public void givenThereAreDifferentPersonsAssociatedWithANameThenThePersonsAreReceivedAsExpected() {
         String characterName = jFixture.create(String.class);
         givenTheSwapApiIsAvailableAndReturningPersonsByName(characterName);
-        List<Person> personList = whenThePersonsAreRequestedByName(characterName);
+        List<PersonModel> personList = whenThePersonsAreRequestedByName(characterName);
         thenThePersonsAreReturnedAsExpected(personList);
     }
 
@@ -57,7 +58,7 @@ public class SwApiFacadeTest {
     public void givenAPersonExistsWhenThePersonDetailsAreRequestedThenTheDetailsAreReceivedAsExpected() {
         int personId = jFixture.create(Integer.class);
         givenTheSwapApiIsAvailableAndReturningAPersonWithId(personId);
-        Optional<Person> person = whenAPersonIsRequestedById(personId);
+        Optional<PersonModel> person = whenAPersonIsRequestedById(personId);
         thenThePersonDetailsAreReturnedAsExpected(person);
     }
 
@@ -65,14 +66,14 @@ public class SwApiFacadeTest {
     public void whenTheSwApiIsFailingANullPersonIsReturned() {
         int personId = jFixture.create(Integer.class);
         givenTheSwApiEndPointIsBroken();
-        Optional<Person> person = whenAPersonIsRequestedById(personId);
+        Optional<PersonModel> person = whenAPersonIsRequestedById(personId);
         thenNoPersonDetailsAreReturned(person);
     }
 
     private void givenTheSwapApiIsAvailableAndReturningAPersonWithId(int personResourceId) {
         when(qForceProperties.getSwapApiUrl()).thenReturn(String.format("http://localhost:%s", swapApiMock.port()));
 
-        swapApiMock.stubFor(get(urlPathEqualTo(String.format("/people/%s", personResourceId)))
+        stubFor(get(urlPathEqualTo(String.format("/people/%s", personResourceId)))
                 .withHeader("Content-Type", equalTo(MediaType.APPLICATION_JSON_VALUE))
                 .withHeader("Accept", equalTo(MediaType.APPLICATION_JSON_VALUE))
                 .willReturn(aResponse()
@@ -94,7 +95,7 @@ public class SwApiFacadeTest {
                         .withBody(MockResponses.Get("persons"))));
     }
 
-    private List<Person> whenThePersonsAreRequestedByName(String characterName) {
+    private List<PersonModel> whenThePersonsAreRequestedByName(String characterName) {
         return swApiFacade.searchPersonsByName(characterName);
     }
 
@@ -103,20 +104,20 @@ public class SwApiFacadeTest {
     }
 
 
-    private Optional<Person> whenAPersonIsRequestedById(int personId) {
+    private Optional<PersonModel> whenAPersonIsRequestedById(int personId) {
        return swApiFacade.searchPersonById(personId);
     }
 
-    private void thenNoPersonDetailsAreReturned(Optional<Person> person) {
+    private void thenNoPersonDetailsAreReturned(Optional<PersonModel> person) {
         assertThat(person.isPresent()).isFalse();
     }
 
-    private void thenThePersonDetailsAreReturnedAsExpected(Optional<Person> person) {
+    private void thenThePersonDetailsAreReturnedAsExpected(Optional<PersonModel> person) {
                 assertThat(person.isPresent()).isTrue();
                 assertThat(person.get().getName()).isEqualTo("C-3PO");
     }
 
-    private void thenThePersonsAreReturnedAsExpected(List<Person> personList) {
+    private void thenThePersonsAreReturnedAsExpected(List<PersonModel> personList) {
         assertThat(personList).hasSize(3);
         assertThat(personList.get(0).getName()).isEqualTo("Luke Skywalker");
     }

@@ -1,11 +1,13 @@
 package nl.qnh.qforce.integrationtests;
 
+import Mocking.MockResponses;
+import Mocking.MockedQForceProperties;
+import ResponseModel.PersonModelTest;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import nl.qnh.qforce.QlnhApplication;
 import nl.qnh.qforce.configuration.QForceProperties;
+import nl.qnh.qforce.domain.Person;
 import nl.qnh.qforce.domain.PersonModel;
-import Mocking.MockResponses;
-import Mocking.MockedQForceProperties;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -46,7 +48,9 @@ public class QForceControllerTest {
 
         givenTheSwapApiIsAvailableAndReturningPersonsByName(characterName);
 
-        ResponseEntity<PersonModel[]> qForceApiResponse = whenWeSearchPersonsByName(characterName);
+        givenTheSwapApiIsAvailableAndReturningMovies();
+
+        ResponseEntity<PersonModelTest[]> qForceApiResponse = whenWeSearchPersonsByName(characterName);
 
         thenThePersonsReceivedAreReturnedAsExpected(qForceApiResponse.getBody());
 
@@ -59,11 +63,25 @@ public class QForceControllerTest {
 
         givenTheSwapApiIsAvailableAndReturningAPersonWithId(personResourceId);
 
-        ResponseEntity<PersonModel> qForceApiResponse = whenWeSearchForAPersonWithId(personResourceId);
+        givenTheSwapApiIsAvailableAndReturningMovies();
+
+        ResponseEntity<PersonModelTest> qForceApiResponse = whenWeSearchForAPersonWithId(personResourceId);
 
         thenThePersonDetailsAreReceivedAsExpected(qForceApiResponse.getBody());
 
         thenTheResponseStatusCodeIs(HttpStatus.OK, qForceApiResponse.getStatusCode());
+    }
+
+    private void givenTheSwapApiIsAvailableAndReturningMovies() {
+        when(qForceProperties.getSwapApiUrl()).thenReturn(String.format("http://localhost:%s", swapApiMock.port()));
+
+        stubFor(get(urlPathEqualTo("/films/1"))
+                .withHeader("Content-Type", equalTo(MediaType.APPLICATION_JSON_VALUE))
+                .withHeader("Accept", equalTo(MediaType.APPLICATION_JSON_VALUE))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                        .withBody(MockResponses.Get("film"))));
     }
 
     private void givenTheSwapApiIsAvailableAndReturningPersonsByName(String characterName) {
@@ -82,7 +100,7 @@ public class QForceControllerTest {
     private void givenTheSwapApiIsAvailableAndReturningAPersonWithId(int personResourceId) {
         when(qForceProperties.getSwapApiUrl()).thenReturn(String.format("http://localhost:%s", swapApiMock.port()));
 
-        swapApiMock.stubFor(get(urlPathEqualTo(String.format("/people/%s", personResourceId)))
+        stubFor(get(urlPathEqualTo(String.format("/people/%s", personResourceId)))
                 .withHeader("Content-Type", equalTo(MediaType.APPLICATION_JSON_VALUE))
                 .withHeader("Accept", equalTo(MediaType.APPLICATION_JSON_VALUE))
                 .willReturn(aResponse()
@@ -91,7 +109,7 @@ public class QForceControllerTest {
                         .withBody(MockResponses.Get("person"))));
     }
 
-    private ResponseEntity<PersonModel[]> whenWeSearchPersonsByName(String characterName) {
+    private ResponseEntity<PersonModelTest[]> whenWeSearchPersonsByName(String characterName) {
         RestTemplate restApi = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.set("Content-Type", MediaType.APPLICATION_JSON.toString());
@@ -103,10 +121,10 @@ public class QForceControllerTest {
                 .build()
                 .toUri();
 
-        return restApi.exchange(qForceEndPoint, HttpMethod.GET, new HttpEntity<PersonModel[]>(headers), PersonModel[].class);
+        return restApi.exchange(qForceEndPoint, HttpMethod.GET, new HttpEntity<PersonModelTest[]>(headers), PersonModelTest[].class);
     }
 
-    private ResponseEntity<PersonModel> whenWeSearchForAPersonWithId(int personResourceId) {
+    private ResponseEntity<PersonModelTest> whenWeSearchForAPersonWithId(int personResourceId) {
         RestTemplate restApi = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.set("Content-Type", MediaType.APPLICATION_JSON.toString());
@@ -117,19 +135,22 @@ public class QForceControllerTest {
                 .build()
                 .toUri();
 
-        return restApi.exchange(qForceEndPoint, HttpMethod.GET, new HttpEntity<PersonModel>(headers), PersonModel.class);
+        return restApi.exchange(qForceEndPoint, HttpMethod.GET, new HttpEntity<PersonModelTest>(headers), PersonModelTest.class);
+
     }
 
-    private void thenThePersonsReceivedAreReturnedAsExpected(PersonModel[] persons) {
+    private void thenThePersonsReceivedAreReturnedAsExpected(PersonModelTest[] persons) {
         assertThat(persons[0].getName()).isEqualTo("Luke Skywalker");
+        assertThat(persons[0].getMovies().size()).isGreaterThan(1);
     }
 
     private void thenTheResponseStatusCodeIs(HttpStatus httpStatus, HttpStatus qForceApiResponseStatus) {
         assertThat(qForceApiResponseStatus).isEqualTo(httpStatus);
     }
 
-    private void thenThePersonDetailsAreReceivedAsExpected(PersonModel person) {
+    private void thenThePersonDetailsAreReceivedAsExpected(PersonModelTest person) {
         assertThat(person.getName()).isEqualTo("C-3PO");
+        assertThat(person.getMovies().size()).isGreaterThan(1);
     }
 
 }

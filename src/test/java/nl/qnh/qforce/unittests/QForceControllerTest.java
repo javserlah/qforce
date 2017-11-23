@@ -46,7 +46,7 @@ public class QForceControllerTest {
 
     @Test
     public void searchingPersonsByExistentNameReturnsTheExpectedPersons() {
-        MockResponses.Get("P54Pool");
+        MockResponses.Get("person");
 
 
         int totalNumberOfExistentPersonsByTheGivenName = 3;
@@ -90,7 +90,7 @@ public class QForceControllerTest {
     }
 
     private List<Person> whenWeSearchForCharactersByTheName(String characterName) {
-        return qForceController.searchPersonsByName(characterName);
+        return qForceController.searchPersonsByName(characterName).getBody();
     }
 
     private ResponseEntity<Person> whenWeRequestAPersonByTheId(int personId) {

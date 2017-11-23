@@ -1,10 +1,7 @@
 package nl.qnh.qforce.facade;
 
 import nl.qnh.qforce.configuration.QForceProperties;
-import nl.qnh.qforce.domain.MovieModel;
-import nl.qnh.qforce.domain.Paging;
-import nl.qnh.qforce.domain.Person;
-import nl.qnh.qforce.domain.PersonModel;
+import nl.qnh.qforce.domain.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -29,7 +26,7 @@ public class SwApiFacade {
      * @param characterName the character name to search for
      * @return the list of persons related with the character name
      */
-    public List<Person> searchPersonsByName(String characterName) {
+    public List<PersonModel> searchPersonsByName(String characterName) {
         ResponseEntity<Paging> swapApiResponse = null;
 
         try {
@@ -46,7 +43,7 @@ public class SwApiFacade {
                     .toUri();
             swapApiResponse = restApi.exchange(swapResource, HttpMethod.GET, new HttpEntity<Paging>(headers), Paging.class);
             if (swapApiResponse.getStatusCode() == HttpStatus.OK) {
-                return Arrays.asList(swapApiResponse.getBody().getResults());
+                return swapApiResponse.getBody().getResults();
             } else {
                 return null;
             }
@@ -60,7 +57,7 @@ public class SwApiFacade {
      * @param id the id of the person to search for
      * @return the person details
      */
-    public Optional<Person> searchPersonById(long id) {
+    public Optional<PersonModel> searchPersonById(long id) {
         ResponseEntity<PersonModel> swapApiResponse = null;
         try {
             RestTemplate restApi = new RestTemplate();
@@ -81,6 +78,30 @@ public class SwApiFacade {
             }
         } catch (Exception ex) {
             return Optional.ofNullable(null);
+        }
+    }
+
+    public MovieModel searchFilmById(long id) {
+        ResponseEntity<MovieModel> swapApiResponse = null;
+        try {
+            RestTemplate restApi = new RestTemplate();
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Content-Type", MediaType.APPLICATION_JSON.toString());
+            headers.set("Accept", MediaType.APPLICATION_JSON.toString());
+            headers.set("User-Agent", "testswap");
+
+            URI swapResource = UriComponentsBuilder.fromUriString(qForceProperties.getSwapApiUrl())
+                    .path(String.format("/films/%s",id))
+                    .build()
+                    .toUri();
+            swapApiResponse = restApi.exchange(swapResource, HttpMethod.GET, new HttpEntity<MovieModel>(headers), MovieModel.class);
+            if (swapApiResponse.getStatusCode() == HttpStatus.OK) {
+                return swapApiResponse.getBody();
+            } else {
+                return null;
+            }
+        } catch (Exception ex) {
+            return null;
         }
     }
 }
